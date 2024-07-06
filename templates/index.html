@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Парсер вакансий hh.ru</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Парсер вакансий hh.ru</h2>
+        <div class="form-group">
+            <label for="query">Введите запрос:</label>
+            <input type="text" id="query" placeholder="Например: Python Developer">
+        </div>
+        <div class="form-group">
+            <label for="experience">Опыт работы:</label>
+            <select id="experience">
+                <option value="0">Без опыта</option>
+                <option value="1">От 1 до 3 лет</option>
+                <option value="2">От 3 до 6 лет</option>
+                <option value="3">Более 6 лет</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="education">Уровень образования:</label>
+            <select id="education">
+                <option value="0">Не требуется</option>
+                <option value="1">Высшее</option>
+                <option value="2">Среднее специальное</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="employment">Тип занятости:</label>
+            <select id="employment">
+                <option value="0">Полная занятость</option>
+                <option value="1">Частичная занятость</option>
+                <option value="2">Стажировка</option>
+                <option value="3">Проектная работа</option>
+                <option value="4">Волонтерство</option>
+            </select>
+        </div>
+        <button onclick="fetchVacancies()">Найти вакансии</button>
+        <button onclick="viewVacancies()">Просмотр сохраненных вакансий</button>
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        async function fetchVacancies() {
+            const query = document.getElementById('query').value;
+            const experience = document.getElementById('experience').value;
+            const education = document.getElementById('education').value;
+            const employment = document.getElementById('employment').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = 'Загрузка...';
+
+            const params = new URLSearchParams({ 
+                query: query, 
+                experience_id: experience, 
+                education_options: education, 
+                employment_options: employment 
+            });
+
+            try {
+                const response = await fetch(`/fetch_vacancies?${params.toString()}`);
+                const data = await response.json();
+                console.log('Ответ получен:', data);
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `Ошибка: ${data.error}`;
+                } else {
+                    resultsDiv.innerHTML = `Найдено вакансий: ${data.count}`;
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                resultsDiv.innerHTML = `Ошибка: ${error}`;
+            }
+        }
+
+        function viewVacancies() {
+            window.location.href = '/vacancies';
+        }
+    </script>
+</body>
+</html>
